@@ -17,14 +17,12 @@ const connectDB = require('./config/db');
 // const swaggerSetup = require('./docs/swagger');
 // const passport = require('passport');
 // const googleAuthSetup = require('./config/passport');
-// const { errorHandler } = require('./middleware/errorHandler');
 
 // Import the seed function
 // const { seedDatabase } = require('./seed');
 // const { NotFoundError } = require('./utils/errorClass');
-// const extendResponse = require('./middleware/extendResponse');
 
-// app.use(express.json());
+app.use(express.json());
 
 // Call the connectDB function to establish the database connection
 connectDB()
@@ -39,8 +37,9 @@ connectDB()
 // Initialize Passport
 // app.use(passport.initialize());
 
-// Apply the extendResponse middleware
-// app.use(extendResponse);
+// Response middleware
+const extendResponse = require('./middleware/extendResponse');
+app.use(extendResponse);
 
 // Mount the user routes
 // app.use('/api/users', userRoutes);
@@ -52,18 +51,21 @@ connectDB()
 // app.use('/api/articles/:articleId/comments', validateArticle, commentRoutes);
 // app.use('/api/categories', categoryRoutes);
 
+// Homepage response
 app.get('/', (req, res) => {
   res.status(200).json({ message: 'You are at home page' });
 });
 
+// Fallback not found page
 app.all('*', async (req, res) => {
   throw new NotFoundError('Page Not Found');
 });
 
-// setup error handler
-// app.use(errorHandler);
+// Error handler
+const { errorHandler } = require('./middleware/errorHandler');
+app.use(errorHandler);
 
-// Start the server
+// Start server
 app.listen(process.env.PORT, () => {
   console.log(`Server started on port http://localhost:${process.env.PORT}`);
 });
